@@ -17,3 +17,6 @@ gulp bundle_logic_webgl
 
 # 运行
 运行 build/index.html
+
+# 运行结果
+<img src='./result0.png' />

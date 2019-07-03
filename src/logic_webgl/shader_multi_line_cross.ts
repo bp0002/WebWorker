@@ -11,6 +11,8 @@ void main( void ){
 }
 `;
 export const fs_multi_line_cross = `
+// Author @patriciogv - 2015
+// Title: Truchet - 10 print
 #ifdef GL_ES
 precision mediump float;
 #endif
