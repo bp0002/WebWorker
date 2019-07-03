@@ -1,3 +1,3 @@
-var gulp_bundle = require('./gulp/gulp_bundle').gulp_bundle;
+var init = require('./gulp/gulp_bundle').init;
 
-gulp_bundle();
+init();

@@ -14,6 +14,19 @@ var entries_logic_webgl     = [
     'src/logic_webgl/index.ts'
 ];
 
+var entries_html     = [
+    'src/index.html'
+];
+
+function gulp_html() {
+    gulp.task(
+        'copy-html',
+        function() {
+            return gulp.src(entries_html)
+                .pipe(gulp.dest(`./build`));
+        }
+    );
+}
 
 function gulp_bundle_logic() {
     gulp.task(
@@ -34,7 +47,7 @@ function gulp_bundle_logic() {
     );
 }
 
-function gulp_bundle_logic() {
+function gulp_bundle_logic_webgl() {
     gulp.task(
         'bundle_logic_webgl',
         function () {
@@ -53,9 +66,9 @@ function gulp_bundle_logic() {
     );
 }
 
-function gulp_bundle() {
+function gulp_bundle_front() {
     gulp.task(
-        'bundle',
+        'bundle_front',
         function () {
             return browserify({
                 basedir: '.',
@@ -73,7 +86,12 @@ function gulp_bundle() {
 }
 
 //
-gulp_bundle_logic();
+const init = () => {
+    gulp_html();
+    gulp_bundle_front();
+    gulp_bundle_logic();
+    gulp_bundle_logic_webgl();
+}
 
 // ======================================
-exports.gulp_bundle = gulp_bundle;
+exports.init = init;
