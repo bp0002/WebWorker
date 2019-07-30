@@ -197,6 +197,7 @@ export const main = (canvas: OffscreenCanvas) => {
         scene06.viewport[1] = 0;
         scene06.viewport[2] = webgldemo.width;
         scene06.viewport[3] = webgldemo.height;
+        mesh06.ufloat = Math.abs(Math.sin(Date.now() / 1000));
         scene06.render(false);
 
         // scene02.viewport[0] = webgldemo.width / 2;

@@ -397,7 +397,7 @@ export class WebGLInstance {
 
         this.renderLoop(timestamp);
 
-        setInterval(this.loop, 50);
+        setTimeout(this.loop, 50);
     }
     public renderLoop(timestamp: number) {}
     public destroy() {
