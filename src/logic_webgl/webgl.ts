@@ -19,7 +19,10 @@ export class ShaderCfg {
     public u_translate_loc: WebGLUniformLocation | undefined   ;
     public u_scale_loc: WebGLUniformLocation | undefined   ;
     public u_rotate_loc: WebGLUniformLocation | undefined   ;
+    public u_float_loc: WebGLUniformLocation | undefined   ;
     public a_position_loc: number | undefined                  ;
+    public a_uv: number | undefined                  ;
+    public u_texture: WebGLUniformLocation | undefined  ;
     private shader_program: WebGLProgram | undefined;
     constructor(sname: string, vs: string, fs: string) {
         this.sname = sname;
@@ -55,9 +58,19 @@ export class ShaderCfg {
 
         this.u_rotate_loc       = <WebGLUniformLocation>gl.getUniformLocation(<WebGLProgram>this.shader_program, `u_rotate`);
 
+        this.u_float_loc        = <WebGLUniformLocation>gl.getUniformLocation(<WebGLProgram>this.shader_program, `u_float`);
+
         this.a_position_loc     = gl.getAttribLocation(<WebGLProgram>this.shader_program, 'position');
 
+        this.a_uv               = gl.getAttribLocation(<WebGLProgram>this.shader_program, 'a_uv');
+
+        this.u_texture          = <WebGLUniformLocation>gl.getUniformLocation(<WebGLProgram>this.shader_program, 'u_sampler');
+
         gl.enableVertexAttribArray(this.a_position_loc);
+
+        gl.enableVertexAttribArray(this.a_uv);
+
+        gl.uniform1i(this.u_texture, 0);
 
         gl.useProgram(<WebGLProgram>this.shader_program);
     }
@@ -76,7 +89,7 @@ export class ShaderCfg {
         gl.compileShader(this.vshader);
 
         if (!gl.getShaderParameter(this.vshader, gl.COMPILE_STATUS)) {
-            alert(`ERROR IN 'VERTEX_SHADER' SHADER: ${ gl.getShaderInfoLog(this.vshader) }`);
+            console.error(`ERROR IN 'VERTEX_SHADER' SHADER: ${ gl.getShaderInfoLog(this.vshader) }`);
             return this.vshader;
         }
 
@@ -97,7 +110,7 @@ export class ShaderCfg {
         gl.compileShader(this.fshader);
 
         if (!gl.getShaderParameter(this.fshader, gl.COMPILE_STATUS)) {
-            alert(`ERROR IN 'FRAGMENT_SHADER' SHADER: ${ gl.getShaderInfoLog(this.fshader) }`);
+            console.error(`ERROR IN 'FRAGMENT_SHADER' SHADER: ${ gl.getShaderInfoLog(this.fshader) }`);
             return this.fshader;
         }
 
@@ -113,6 +126,8 @@ export class DataBufferCfg {
     public face_loc:                number | undefined;
     public readonly face_data:      number[]    = [];
     public face_buffer:             WebGLBuffer | undefined;
+    public readonly uv_data:        number[]    = [];
+    public uv_buffer:               WebGLBuffer | undefined;
     constructor(vname: string) {
         this.vname = vname;
     }
@@ -122,8 +137,12 @@ export class DataBufferCfg {
     public addFace(a: number, b: number, c: number) {
         this.face_data.push(a, b, c);
     }
+    public addUV(u: number, v: number) {
+        this.uv_data.push(u, v);
+    }
     public update(gl: WebGLRenderingContext) {
         this.activeVertex(gl);
+        this.activeUV(gl);
         this.activeFace(gl);
     }
     public activeVertex(gl: WebGLRenderingContext) {
@@ -148,19 +167,33 @@ export class DataBufferCfg {
                         );
         }
     }
+    public activeUV(gl: WebGLRenderingContext) {
+        if (!this.uv_buffer) {
+            this.uv_buffer  = <WebGLBuffer>gl.createBuffer();
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.uv_buffer);
+            gl.bufferData(gl.ARRAY_BUFFER,
+                            new Float32Array(this.uv_data),
+                            gl.STATIC_DRAW
+                        );
+        }
+    }
 }
 
 export class Mesh {
+    public texture: TextureInstance | null;
     public readonly dataBufferCfg: DataBufferCfg;
     public readonly shaderCfg: ShaderCfg;
     public readonly id: string;
     public readonly translate: number[] = [0, 0, 0];
     public readonly scale: number[]     = [1, 1, 1];
     public readonly rotate: number[]    = [0, 0, 0];
+    public ufloat: number      = 0.0;
     constructor(id: string, geo: DataBufferCfg, material: ShaderCfg) {
         this.id             = id;
         this.dataBufferCfg  = geo;
         this.shaderCfg      = material;
+        this.texture        = null;
     }
     public render(scene: Scene) {
 
@@ -170,8 +203,13 @@ export class Mesh {
 
         shader.getPrograme(gl);
 
+        if (this.texture) {
+            this.texture.active();
+        }
+
         gl.uniform2fv(<WebGLUniformLocation>shader.u_mouse_loc,    scene.engine.u_mouse);
         gl.uniform1f(<WebGLUniformLocation>shader.u_time_loc,      scene.engine.timestamp * 0.001);
+        gl.uniform1f(<WebGLUniformLocation>shader.u_float_loc,      this.ufloat);
 
         gl.uniform2f(<WebGLUniformLocation>shader.u_resolution_loc, scene.engine.width,  scene.engine.height);
         gl.uniform3f(<WebGLUniformLocation>shader.u_translate_loc,  this.translate[0],  this.translate[1],  this.translate[2]);
@@ -180,6 +218,15 @@ export class Mesh {
 
         gl.bindBuffer(gl.ARRAY_BUFFER, <WebGLBuffer>this.dataBufferCfg.vertex_buffer);
         gl.vertexAttribPointer(<number>shader.a_position_loc,
+                                    2,
+                                    gl.FLOAT,
+                                    false,
+                                    4 * 2,
+                                    0
+                                );
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, <WebGLBuffer>this.dataBufferCfg.uv_buffer);
+        gl.vertexAttribPointer(<number>shader.a_uv,
                                     2,
                                     gl.FLOAT,
                                     false,
@@ -223,6 +270,58 @@ export class Scene {
     }
 }
 
+export class TextureInstance {
+    public static loadCall = (path: string, engine: WebGLInstance, cb: (img: ImageData, fname: string, engine: WebGLInstance) => void) => {
+        try {
+            // const img = new Image();
+            // img.onload = () => {
+            //     cb(img, path, engine);
+            // };
+            // img.src = path;
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    public static loaded = (img: ImageData, fname: string, engine: WebGLInstance) => {
+        const texIns = <TextureInstance>engine.getTexture(fname);
+        if (texIns) {
+            const GL = <WebGLRenderingContext>engine.gl;
+            const tex   = <WebGLTexture>GL.createTexture();
+            GL.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, true);
+            GL.bindTexture(GL.TEXTURE_2D, tex);
+            GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, img);
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST_MIPMAP_LINEAR);
+            GL.generateMipmap(GL.TEXTURE_2D);
+            GL.bindTexture(GL.TEXTURE_2D, null);
+            texIns._tex = tex;
+        }
+
+    }
+    public readonly fname: string;
+    private _tex: WebGLTexture | null;
+    private _engine: WebGLInstance;
+    constructor(name: string, engine: WebGLInstance) {
+        this.fname      = name;
+        this._engine    = engine;
+        this._tex       = null;
+
+        engine.addTexture(this);
+        TextureInstance.loadCall(name, engine, TextureInstance.loaded);
+    }
+    public active() {
+        const GL    = <WebGLRenderingContext>this._engine.gl;
+
+        if (this._tex) {
+            GL.activeTexture(GL.TEXTURE0);
+            GL.bindTexture(GL.TEXTURE_2D, this._tex);
+        }
+    }
+    public remove() {
+        this._engine.delTexture(this);
+    }
+}
+
 export class WebGLInstance {
     public readonly canvas: OffscreenCanvas;
     public readonly gl: WebGLRenderingContext | null;
@@ -235,6 +334,11 @@ export class WebGLInstance {
     public readonly u_mouse: number[]        = [0, 0];
     public timestamp: number = 0;
     private sceneMap: Map<string, Scene> = new Map();
+    private textureMap: Map<string, TextureInstance> = new Map();
+    private _isDestroy: boolean = false;
+    public get isDestroy() {
+        return this._isDestroy;
+    }
     constructor(opt: WebGLInstanceOpt) {
         this.canvas = opt.canvas;
         this.width  = this.canvas.width;
@@ -261,6 +365,25 @@ export class WebGLInstance {
 
         return gl;
     }
+    public createTexture(fname: string) {
+        let tex: TextureInstance = <TextureInstance>this.textureMap.get(fname);
+
+        if (tex === undefined) {
+            tex = new TextureInstance(fname, this);
+        }
+
+        return tex;
+    }
+    public addTexture(tex: TextureInstance) {
+        this.textureMap.set(tex.fname, tex);
+    }
+    public getTexture(fname: string) {
+        return this.textureMap.get(fname);
+    }
+    public delTexture(tex: TextureInstance) {
+        this.textureMap.delete(tex.fname);
+        (<WebGLRenderingContext>this.gl).deleteTexture(tex);
+    }
     public addScene(cfg: Scene) {
         this.sceneMap.set(cfg.sname, cfg);
     }
@@ -274,7 +397,13 @@ export class WebGLInstance {
 
         this.renderLoop(timestamp);
 
-        requestAnimationFrame(this.loop);
+        setInterval(this.loop, 50);
     }
     public renderLoop(timestamp: number) {}
+    public destroy() {
+        this._isDestroy = true;
+        this.textureMap.forEach((tex) => {
+            this.delTexture(tex);
+        });
+    }
 }
