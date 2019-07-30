@@ -207,39 +207,46 @@ export class Mesh {
             this.texture.active();
         }
 
-        gl.uniform2fv(<WebGLUniformLocation>shader.u_mouse_loc,    scene.engine.u_mouse);
-        gl.uniform1f(<WebGLUniformLocation>shader.u_time_loc,      scene.engine.timestamp * 0.001);
-        gl.uniform1f(<WebGLUniformLocation>shader.u_float_loc,      this.ufloat);
+        <WebGLUniformLocation>shader.u_mouse_loc    && gl.uniform2fv(<WebGLUniformLocation>shader.u_mouse_loc,    scene.engine.u_mouse);
+        <WebGLUniformLocation>shader.u_time_loc     && gl.uniform1f(<WebGLUniformLocation>shader.u_time_loc,      scene.engine.timestamp * 0.001);
+        <WebGLUniformLocation>shader.u_float_loc    && gl.uniform1f(<WebGLUniformLocation>shader.u_float_loc,      this.ufloat);
 
-        gl.uniform2f(<WebGLUniformLocation>shader.u_resolution_loc, scene.engine.width,  scene.engine.height);
-        gl.uniform3f(<WebGLUniformLocation>shader.u_translate_loc,  this.translate[0],  this.translate[1],  this.translate[2]);
-        gl.uniform3f(<WebGLUniformLocation>shader.u_scale_loc,      this.scale[0],      this.scale[1],      this.scale[2]);
-        gl.uniform3f(<WebGLUniformLocation>shader.u_rotate_loc,     this.rotate[0],     this.rotate[1],     this.rotate[2]);
+        <WebGLUniformLocation>shader.u_resolution_loc   && gl.uniform2f(<WebGLUniformLocation>shader.u_resolution_loc, scene.engine.width,  scene.engine.height);
+        <WebGLUniformLocation>shader.u_translate_loc    && gl.uniform3f(<WebGLUniformLocation>shader.u_translate_loc,  this.translate[0],  this.translate[1],  this.translate[2]);
+        <WebGLUniformLocation>shader.u_scale_loc        && gl.uniform3f(<WebGLUniformLocation>shader.u_scale_loc,      this.scale[0],      this.scale[1],      this.scale[2]);
+        <WebGLUniformLocation>shader.u_rotate_loc       && gl.uniform3f(<WebGLUniformLocation>shader.u_rotate_loc,     this.rotate[0],     this.rotate[1],     this.rotate[2]);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, <WebGLBuffer>this.dataBufferCfg.vertex_buffer);
-        gl.vertexAttribPointer(<number>shader.a_position_loc,
-                                    2,
-                                    gl.FLOAT,
-                                    false,
-                                    4 * 2,
-                                    0
-                                );
+        if (<number>shader.a_position_loc >= 0) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, <WebGLBuffer>this.dataBufferCfg.vertex_buffer);
+            gl.vertexAttribPointer(<number>shader.a_position_loc,
+                                        2,
+                                        gl.FLOAT,
+                                        false,
+                                        4 * 2,
+                                        0
+                                    );
+        }
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, <WebGLBuffer>this.dataBufferCfg.uv_buffer);
-        gl.vertexAttribPointer(<number>shader.a_uv,
-                                    2,
-                                    gl.FLOAT,
-                                    false,
-                                    4 * 2,
-                                    0
-                                );
+        if (<number>shader.a_uv >= 0) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, <WebGLBuffer>this.dataBufferCfg.uv_buffer);
+            gl.vertexAttribPointer(<number>shader.a_uv,
+                                        2,
+                                        gl.FLOAT,
+                                        false,
+                                        4 * 2,
+                                        0
+                                    );
+        }
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, <WebGLBuffer>this.dataBufferCfg.face_buffer);
-        gl.drawElements(gl.TRIANGLES,
-                            6,
-                            gl.UNSIGNED_SHORT,
-                            0
-                        );
+        if (<WebGLBuffer>this.dataBufferCfg.face_buffer) {
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, <WebGLBuffer>this.dataBufferCfg.face_buffer);
+            gl.drawElements(gl.TRIANGLES,
+                                6,
+                                gl.UNSIGNED_SHORT,
+                                0
+                            );
+        }
+
         gl.flush();
     }
 }
