@@ -24,6 +24,7 @@ export class ShaderCfg {
     public a_uv: number | undefined                  ;
     public u_texture: WebGLUniformLocation | undefined  ;
     private shader_program: WebGLProgram | undefined;
+    public texActive: boolean = false  ;
     constructor(sname: string, vs: string, fs: string) {
         this.sname = sname;
         this.fs = fs;
@@ -70,9 +71,12 @@ export class ShaderCfg {
 
         gl.enableVertexAttribArray(this.a_uv);
 
-        gl.uniform1i(this.u_texture, 0);
-
         gl.useProgram(<WebGLProgram>this.shader_program);
+
+        if (this.texActive) {
+            this.u_texture && gl.uniform1i(this.u_texture, 0);
+        }
+
     }
     public getVSShader(gl: WebGLRenderingContext) {
         if (gl === null) { return this.vshader; }
@@ -201,11 +205,15 @@ export class Mesh {
 
         const shader = <ShaderCfg>this.shaderCfg;
 
-        shader.getPrograme(gl);
-
         if (this.texture) {
-            this.texture.active();
+            this.shaderCfg.texActive = this.texture.active();
+
+            if (!this.shaderCfg.texActive) {
+                return;
+            }
         }
+
+        shader.getPrograme(gl);
 
         <WebGLUniformLocation>shader.u_mouse_loc    && gl.uniform2fv(<WebGLUniformLocation>shader.u_mouse_loc,    scene.engine.u_mouse);
         <WebGLUniformLocation>shader.u_time_loc     && gl.uniform1f(<WebGLUniformLocation>shader.u_time_loc,      scene.engine.timestamp * 0.001);
@@ -319,12 +327,17 @@ export class TextureInstance {
         TextureInstance.loadCall(name, engine, TextureInstance.loaded);
     }
     public active() {
+        let result: boolean = false;
+
         const GL    = <WebGLRenderingContext>this._engine.gl;
 
         if (this._tex) {
             GL.activeTexture(GL.TEXTURE0);
             GL.bindTexture(GL.TEXTURE_2D, this._tex);
+            result = true;
         }
+
+        return result;
     }
     public remove() {
         this._engine.delTexture(this);
@@ -406,7 +419,7 @@ export class WebGLInstance {
 
         this.renderLoop(timestamp);
 
-        setTimeout(this.loop, 50);
+        setTimeout(this.loop, 20);
     }
     public renderLoop(timestamp: number) {}
     public destroy() {

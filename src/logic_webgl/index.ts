@@ -191,13 +191,13 @@ export const main = (canvas: OffscreenCanvas) => {
     mesh05.texture = webgldemo.createTexture('/resources/choice_light.png');
     scene05.addMesh(mesh05);
 
-    // const mesh06 = new Mesh('mesh06', dataBuffer03, shader06);
-    // mesh06.translate[0] = 0.0;
-    // mesh06.translate[1] = 0.0;
-    // mesh06.scale[0] = 1;
-    // mesh06.scale[1] = 1;
-    // mesh06.ufloat = 0.5;
-    // scene06.addMesh(mesh06);
+    const mesh06 = new Mesh('mesh06', dataBuffer03, shader06);
+    mesh06.translate[0] = 0.0;
+    mesh06.translate[1] = 0.0;
+    mesh06.scale[0] = 1;
+    mesh06.scale[1] = 1;
+    mesh06.ufloat = 0.5;
+    scene06.addMesh(mesh06);
 
     const mesh07 = new Mesh('mesh07', dataBuffer04, shader05);
     mesh07.translate[0] = 0.0;
@@ -222,12 +222,12 @@ export const main = (canvas: OffscreenCanvas) => {
         // scene01.viewport[3] = webgldemo.height / 2;
         // scene01.render(false);
 
-        // scene06.viewport[0] = 0;
-        // scene06.viewport[1] = 0;
-        // scene06.viewport[2] = webgldemo.width;
-        // scene06.viewport[3] = webgldemo.height;
-        // mesh06.ufloat = Math.abs(Math.sin(Date.now() / 1000));
-        // scene06.render(false);
+        scene06.viewport[0] = 0;
+        scene06.viewport[1] = 0;
+        scene06.viewport[2] = webgldemo.width;
+        scene06.viewport[3] = webgldemo.height;
+        mesh06.ufloat = Math.abs(Math.sin(Date.now() / 1000));
+        scene06.render(false);
 
         // scene02.viewport[0] = webgldemo.width / 2;
         // scene02.viewport[1] = 0;
