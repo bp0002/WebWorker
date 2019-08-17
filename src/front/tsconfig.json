@@ -13,7 +13,8 @@
         // "declarationMap": true,                /* Generates a sourcemap for each corresponding '.d.ts' file. */
         // "sourceMap": true,                     /* Generates corresponding '.map' file. */
         // "outFile": "./",                       /* Concatenate(连接) and emit(发送) output to single file. */
-        "outDir": "../../build",
+        // "outDir": "../../build",
+        "outDir": "../../webpack_build",
         /* Redirect(重定向) output structure to the directory. */
         "rootDir": "./",
         /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
