@@ -20,3 +20,12 @@ gulp bundle_logic_webgl
 
 # 运行结果
 <img src='./result0.png' />
+
+# webpack
+webpack.front.js
+webpack.logic.js
+webpack.logic_webgl.js
+webpack.logic_webgl_vao.js
+
+# 运行
+运行 webpack_build/index.html

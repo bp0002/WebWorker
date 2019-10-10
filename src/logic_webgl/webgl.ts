@@ -23,6 +23,7 @@ export class ShaderCfg {
     public a_position_loc: number | undefined                  ;
     public a_uv: number | undefined                  ;
     public u_texture: WebGLUniformLocation | undefined  ;
+    public u_texture1: WebGLUniformLocation | undefined  ;
     private shader_program: WebGLProgram | undefined;
     public texActive: boolean = false  ;
     constructor(sname: string, vs: string, fs: string) {
@@ -67,6 +68,8 @@ export class ShaderCfg {
 
         this.u_texture          = <WebGLUniformLocation>gl.getUniformLocation(<WebGLProgram>this.shader_program, 'u_sampler');
 
+        this.u_texture1          = <WebGLUniformLocation>gl.getUniformLocation(<WebGLProgram>this.shader_program, 'u_sampler1');
+
         gl.enableVertexAttribArray(this.a_position_loc);
 
         gl.enableVertexAttribArray(this.a_uv);
@@ -75,6 +78,7 @@ export class ShaderCfg {
 
         if (this.texActive) {
             this.u_texture && gl.uniform1i(this.u_texture, 0);
+            this.u_texture1 && gl.uniform1i(this.u_texture1, 1);
         }
 
     }
@@ -186,6 +190,7 @@ export class DataBufferCfg {
 
 export class Mesh {
     public texture: TextureInstance | null;
+    public maskTexture: TextureInstance | null;
     public readonly dataBufferCfg: DataBufferCfg;
     public readonly shaderCfg: ShaderCfg;
     public readonly id: string;
@@ -198,6 +203,7 @@ export class Mesh {
         this.dataBufferCfg  = geo;
         this.shaderCfg      = material;
         this.texture        = null;
+        this.maskTexture    = null;
     }
     public render(scene: Scene) {
 
@@ -207,6 +213,10 @@ export class Mesh {
 
         if (this.texture) {
             this.shaderCfg.texActive = this.texture.active();
+
+            if (this.maskTexture) {
+                this.shaderCfg.texActive = this.maskTexture.active();
+            }
 
             if (!this.shaderCfg.texActive) {
                 return;
@@ -249,7 +259,7 @@ export class Mesh {
         if (<WebGLBuffer>this.dataBufferCfg.face_buffer) {
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, <WebGLBuffer>this.dataBufferCfg.face_buffer);
             gl.drawElements(gl.TRIANGLES,
-                                6,
+                                this.dataBufferCfg.face_data.length,
                                 gl.UNSIGNED_SHORT,
                                 0
                             );
@@ -316,12 +326,14 @@ export class TextureInstance {
 
     }
     public readonly fname: string;
+    private _index: number;
     private _tex: WebGLTexture | null;
     private _engine: WebGLInstance;
-    constructor(name: string, engine: WebGLInstance) {
+    constructor(name: string, engine: WebGLInstance, index?: number) {
         this.fname      = name;
         this._engine    = engine;
         this._tex       = null;
+        this._index     = index || 0;
 
         engine.addTexture(this);
         TextureInstance.loadCall(name, engine, TextureInstance.loaded);
@@ -332,7 +344,11 @@ export class TextureInstance {
         const GL    = <WebGLRenderingContext>this._engine.gl;
 
         if (this._tex) {
-            GL.activeTexture(GL.TEXTURE0);
+            if (this._index === 0) {
+                GL.activeTexture(GL.TEXTURE0);
+            } else if (this._index === 1) {
+                GL.activeTexture(GL.TEXTURE1);
+            }
             GL.bindTexture(GL.TEXTURE_2D, this._tex);
             result = true;
         }
@@ -387,11 +403,11 @@ export class WebGLInstance {
 
         return gl;
     }
-    public createTexture(fname: string) {
+    public createTexture(fname: string, index?: number) {
         let tex: TextureInstance = <TextureInstance>this.textureMap.get(fname);
 
         if (tex === undefined) {
-            tex = new TextureInstance(fname, this);
+            tex = new TextureInstance(fname, this, index);
         }
 
         return tex;

@@ -8,7 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "front": "webpack --config webpack.front.js",
     "logic": "webpack --config webpack.logic.js",
-    "logic_webgl": "webpack --config webpack.config.js"
+    "logic_webgl": "webpack --config webpack.logic_webgl.js",
+    "logic_webgl_vao": "webpack --config webpack.logic_webgl_vao.js"
   },
   "author": "",
   "license": "ISC",
