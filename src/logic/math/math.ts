@@ -26,4 +26,17 @@ export class MathTools {
         }
         return true;
     }
+    /**
+     * @description 下一个2的冥的数
+     */
+    public static nextPowerOfTwo(value: number) {
+        --value;
+        value |= value >> 1;
+        value |= value >> 2;
+        value |= value >> 4;
+        value |= value >> 8;
+        value |= value >> 16;
+
+        return ++value;
+    }
 }

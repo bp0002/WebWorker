@@ -1,5 +1,6 @@
 const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const HTMLWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     // entry: './src/logic_webgl/index.ts',
@@ -29,6 +30,9 @@ module.exports = {
     //     usedExports: true
     // },
     plugins: [
-        new CleanWebpackPlugin()
+        new CleanWebpackPlugin(),
+        new HTMLWebpackPlugin({
+            template: './src/logic_webgl_vao/index.html',
+        })
     ],
 }

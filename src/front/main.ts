@@ -16,7 +16,7 @@
 
 // worker01.postMessage({ 'CMD': 'INIT', 'canvas': off_canvas }, [off_canvas]);
 
-const worker01 = new Worker('./logic_webgl/index.js');
+const worker01 = new Worker('../logic/index.js');
 
 const canvas = <HTMLCanvasElement>document.getElementById('your_canvas');
 
