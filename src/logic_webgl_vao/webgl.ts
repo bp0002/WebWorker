@@ -70,9 +70,13 @@ export class ShaderCfg {
 
         this.u_texture1          = <WebGLUniformLocation>gl.getUniformLocation(<WebGLProgram>this.shader_program, 'u_sampler1');
 
-        gl.enableVertexAttribArray(this.a_position_loc);
+        if (this.a_position_loc >= 0) {
+            gl.enableVertexAttribArray(this.a_position_loc);
+        }
 
-        gl.enableVertexAttribArray(this.a_uv);
+        if (this.a_uv >= 0) {
+            gl.enableVertexAttribArray(this.a_uv);
+        }
 
         gl.useProgram(<WebGLProgram>this.shader_program);
 
@@ -368,7 +372,7 @@ export class WebGLInstance {
     public static readonly uniforms_1f: string[]    = ['u_time'];
     public static readonly uniforms_2fv: string[]   = ['u_mouse'];
     public static readonly uniforms_2f: string[]    = ['u_resolution'];
-    public static readonly contentModes = ["webgl2", "webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
+    public static readonly contentModes = ["webgl", "experimental-webgl", "webgl2", "webkit-3d", "moz-webgl"];
     public readonly u_mouse: number[]        = [0, 0];
     public timestamp: number = 0;
     private sceneMap: Map<string, Scene> = new Map();
@@ -388,7 +392,7 @@ export class WebGLInstance {
         try {
             for (var ii = 0; ii < WebGLInstance.contentModes.length; ++ii) {
                 try {
-                    gl = <WebGLRenderingContext>canvas.getContext(WebGLInstance.contentModes[ii], {alpha : true, antialias : true });
+                    gl = <WebGLRenderingContext>canvas.getContext(WebGLInstance.contentModes[ii], { alpha : true, antialias : false });
                 } catch (e) {
                     //
                 }
@@ -435,7 +439,7 @@ export class WebGLInstance {
 
         this.renderLoop(timestamp);
 
-        setTimeout(this.loop, 20);
+        requestAnimationFrame(this.loop);
     }
     public renderLoop(timestamp: number) {}
     public destroy() {

@@ -7,6 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "front": "webpack --config webpack.front.js",
+    "front_logic": "webpack --config webpack.front_logic.js",
     "logic": "webpack --config webpack.logic.js",
     "logic_webgl": "webpack --config webpack.logic_webgl.js",
     "logic_webgl_vao": "webpack --config webpack.logic_webgl_vao.js"
@@ -19,6 +20,7 @@
     "clean-webpack-plugin": "^3.0.0",
     "gulp": "^4.0.2",
     "gulp-typescript": "^5.0.1",
+    "html-webpack-plugin": "^3.2.0",
     "ts-loader": "^6.0.4",
     "tsify": "^4.0.1",
     "typescript": "^3.5.3",

@@ -1,10 +1,17 @@
-import { main } from "./index";
+import { Bar } from "./progress";
 
 const canvas = <HTMLCanvasElement>document.getElementById('your_canvas');
 
 canvas.width = 800;
 canvas.height = 800;
 
-const off_canvas = canvas;
+const bar = new Bar({
+    canvas,
+    bg: '/resources/texture.png'
+});
 
-main(off_canvas);
+bar.show('vvv', 100, 10);
+
+setInterval(() => {
+    bar.onProcess('', '', 0, Math.abs(Math.sin(Date.now() / 5000) * 100), undefined);
+}, 50);

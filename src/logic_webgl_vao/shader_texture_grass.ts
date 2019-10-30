@@ -38,10 +38,12 @@ void main(void){
     // [ 0, 0, 0, 1 ]  rgba颜色向量
     // gl_FragColor = vec4( vColor, 1. );
 
-    vec4 ctx_color  = texture2D( u_sampler, vUV );
-
     vec4 mask_color = texture2D( u_sampler1, vUV );
     float alpha     = (mask_color.r + mask_color.g + mask_color.b) > 1.0 ? 1.0 : 0.0;
+
+    float x = vUV.x < 0.5 ? abs(vUV.x - 0.5) : 1.0 - (vUV.x - 0.5);
+    float y = vUV.y < 0.5 ? abs(vUV.y - 0.5) : 1.0 - (vUV.y - 0.5);
+    vec4 ctx_color  = texture2D( u_sampler, vec2(x, y) );
 
     gl_FragColor    = vec4(ctx_color.rgb, alpha);
 }

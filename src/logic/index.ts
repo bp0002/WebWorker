@@ -47,10 +47,13 @@ self.onmessage = (ev: MessageEvent) => {
     }
 };
 
+let index: number = 0;
+
 const renderLoop = () => {
     if (offscreenCfg.ready) {
 
-        draw(offscreenCfg);
+        // draw(offscreenCfg);
+        draw2(offscreenCfg);
 
     }
 
@@ -84,4 +87,31 @@ const drawEllipse = (x: number, y: number, width: number, height: number, contex
     context.fillStyle = '#ff0000';
 
     context.fill();
+};
+
+const perCount = 1000;
+
+const draw2 = (offscreenCfg: OffscreenCfg) => {
+
+    offscreenCfg.context2D.save();
+
+    for (let i = 0; i < perCount; i++) {
+        index++;
+        if (!MathTools.isPrimeNumber(index)) { continue; }
+        drawPoint(index, offscreenCfg.context2D, offscreenCfg.width, offscreenCfg.height);
+    }
+
+    offscreenCfg.context2D.restore();
+};
+
+const drawPoint = (num: number, context: OffscreenCanvasRenderingContext2D, width: number, height: number) => {
+    let { x, y } = MathTools.polarCoordToCartesian(num);
+
+    x = width / 2 + x / 1000;
+    y = height / 2 + y / 1000;
+
+    //设置绘制颜色
+    context.fillStyle = "#0000FF";
+    //绘制成矩形
+    context.fillRect(x - 1, y - 1, 2, 2);
 };
