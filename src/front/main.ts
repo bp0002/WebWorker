@@ -20,8 +20,8 @@ const worker01 = new Worker('../logic/index.js');
 
 const canvas = <HTMLCanvasElement>document.getElementById('your_canvas');
 
-canvas.width = 800;
-canvas.height = 800;
+canvas.width = 1200;
+canvas.height = 1200;
 
 const off_canvas = <any>canvas.transferControlToOffscreen();
 
@@ -60,13 +60,13 @@ const loadImageSucc = (img: HTMLImageElement, fname: string) => {
     ctx.drawImage(img, 0, 0);
     ctx.save();
 
-    // const off_canvas = <any>canvas.transferControlToOffscreen();
+    const off_canvas = <any>canvas.transferControlToOffscreen();
 
-    const imageData = ctx.getImageData(0, 0, img.width, img.height);
-    const data = imageData.data;
-    worker01.postMessage({ 'CMD': 'IMAGE', 'image': data, 'fname': fname, "width": imageData.width, "height": imageData.height });
+    // const imageData = ctx.getImageData(0, 0, img.width, img.height);
+    // const data = imageData.data;
+    // worker01.postMessage({ 'CMD': 'IMAGE', 'image': data, 'fname': fname, "width": imageData.width, "height": imageData.height });
 
-    // createImageBitmap(img).then((value: ImageBitmap) => {
-    //     worker01.postMessage({ 'CMD': 'IMAGE', 'image': value, 'fname': fname }, [value]);
-    // });
+    createImageBitmap(img).then((value: ImageBitmap) => {
+        worker01.postMessage({ 'CMD': 'IMAGE', 'image': value, 'fname': fname }, [value]);
+    });
 };

@@ -91,14 +91,20 @@ const drawEllipse = (x: number, y: number, width: number, height: number, contex
 
 const perCount = 1000;
 
+let preNumber = 0;
+let preNumber1 = 0;
+
 const draw2 = (offscreenCfg: OffscreenCfg) => {
 
     offscreenCfg.context2D.save();
 
     for (let i = 0; i < perCount; i++) {
         index++;
-        if (!MathTools.isPrimeNumber(index)) { continue; }
+        if (index !== preNumber + preNumber1) { continue; }
+        // if (!MathTools.isPrimeNumber(index)) { continue; }
         drawPoint(index, offscreenCfg.context2D, offscreenCfg.width, offscreenCfg.height);
+        preNumber = preNumber1;
+        preNumber1 = index;
     }
 
     offscreenCfg.context2D.restore();
@@ -107,8 +113,8 @@ const draw2 = (offscreenCfg: OffscreenCfg) => {
 const drawPoint = (num: number, context: OffscreenCanvasRenderingContext2D, width: number, height: number) => {
     let { x, y } = MathTools.polarCoordToCartesian(num);
 
-    x = width / 2 + x / 1000;
-    y = height / 2 + y / 1000;
+    x = width / 2 + x / 100;
+    y = height / 2 + y / 100;
 
     //设置绘制颜色
     context.fillStyle = "#0000FF";

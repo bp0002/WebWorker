@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "fibonacci_lattice": "webpack --config webpack.fibonacci_lattice.js",
     "front": "webpack --config webpack.front.js",
     "front_webgl": "webpack --config webpack.front_webgl.js",
     "logic": "webpack --config webpack.logic.js",

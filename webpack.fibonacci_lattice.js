@@ -5,11 +5,11 @@ const HTMLWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
     // entry: './src/logic_webgl/index.ts',
     entry: {
-        logic_webgl: './src/front/main.ts'
+        logic_webgl: './src/fibonacci_lattice/main.ts'
     },
     output: {
         filename: 'bundle.js',
-        path: path.resolve(__dirname, 'webpack_build/front')
+        path: path.resolve(__dirname, 'webpack_build/fibonacci_lattice')
     },
     devtool: 'inline-source-map',                                  // 告诉 webpack 提取这些 source map，并内联到最终的 文件 中。
     module: {
@@ -25,7 +25,7 @@ module.exports = {
         extensions: [ '.tsx', '.ts', '.js' ]
     },
     mode: 'development',
-    mode: 'production',
+    // mode: 'production',
     // optimization: {
     //     usedExports: true
     // },
